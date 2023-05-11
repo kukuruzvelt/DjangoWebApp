@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Catalog</title>
+</head>
+<body>
+{% for prod in products %}
+    <form method="post" action="/products/catalog">
+        {% csrf_token %}
+        {{ prod }}
+        <input type="submit" value="Add to cart">
+        <input type="hidden" name="product_id" value="{{ prod.id }}">
+    </form>
+{% endfor %}
+</body>
+</html>
