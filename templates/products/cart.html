@@ -8,9 +8,20 @@
 <span>{{ error_message }}</span>
 <span>{{ message }}</span>
 {% for prod in products %}
-    <form method="post" action="/products/catalog">
-        {{ prod }}
+    {{ prod }} : {{ prod.price }}
+    <form method="post" action="/products/cart">
+        {% csrf_token %}
+        <input class="text" type="hidden" name="prod_id" value={{ prod.id }}>
+        <input class="button" type="submit" value="Remove">
     </form>
+    <br>
 {% endfor %}
+
+{% if products %}
+    <form method="get" action="/products/buy">
+        {% csrf_token %}
+        <input class="button" type="submit" value="Buy">
+    </form>
+{% endif %}
 </body>
 </html>

@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Order</title>
+</head>
+<body>
+<span>{{ error_message }}</span>
+Your order: <br>
+{% for prod in products %}
+    {{ prod }} - {{ prod.price }}
+    <br>
+{% endfor %}
+
+<form method="POST" action="/products/buy">
+    {% csrf_token %}
+    {{ form.date }}<br>
+    {{ form.city }}<br>
+    <input class="order-btn" type="submit" value="Order">
+</form>
+</body>
+</html>

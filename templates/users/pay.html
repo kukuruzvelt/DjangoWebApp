@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Pay</title>
+</head>
+<body>
+<span>{{ error_message }}</span>
+<span>{{ message }}</span>
+<form method="post" action="/users/pay">
+    {% csrf_token %}
+    <label>
+        <input type="number" placeholder="Sum" name="money" min="0">
+    </label><br/>
+    <input class="button" type="submit" value="Pay">
+</form>
+</body>
+</html>

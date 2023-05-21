@@ -1,23 +1,44 @@
 from django.shortcuts import render, redirect
-from .forms import UserForm
 from django.contrib.auth.models import User
+from .models import Customer
+from django.contrib.auth.decorators import login_required
+from django.db import transaction
 
 
+@transaction.atomic()
 def register_page(request):
-    # todo add error message if form isn't valid
-    # todo add password encoding
+    data = {}
     if request.method == 'POST':
-        form = UserForm(request.POST)
-        if form.is_valid():
-            user = User.objects.create_user(form.cleaned_data['login'], '', form.cleaned_data['password'])
+        # creating user in django.contrib.auth, and saving users money amount in models,
+        # so that users in both tables having the same id
+        login = request.POST['login']
+        name = request.POST['name']
+        password = request.POST['password']
+        # todo ensure that fields are valid, add error to data{} if not
+        user = User.objects.create_user(login, '', password)
+        user.first_name = name
+        user.save()
 
-            user.first_name = form.cleaned_data['name']
-            user.save()
-            form.save()
-            return redirect('/users/login')
+        Customer.objects.create(user=user).save()
 
-    form = UserForm
-    data = {
-        'form': form
-    }
+        return redirect('/users/login')
+
     return render(request, 'registration/register.html', data)
+
+
+@login_required
+def profile_page(request):
+    return render(request, 'users/profile.html')
+
+
+@login_required
+def pay_page(request):
+    data = {}
+    if request.method == 'POST':
+        money = request.POST['money']
+        user_id = request.user.id
+        user = Customer.objects.get(id=user_id)
+        Customer.objects.filter(id=user_id).update(money=user.money + int(money))
+        data['message'] = 'Successfully replenished the balance for ' + money
+
+    return render(request, 'users/pay.html', data)

@@ -9,9 +9,15 @@
     <div class="registration-fields">
         <form method="POST">
             {% csrf_token %}
-            {{ form.name }}<br>
-            {{ form.login }}<br>
-            {{ form.password }}<br>
+            <label>
+                <input type="text" placeholder="Enter first name" name="name">
+            </label>
+            <label>
+                <input type="text" placeholder="Enter login" name="login">
+            </label>
+            <label>
+                <input type="password" placeholder="Enter password" name="password">
+            </label>
             <input class="register-btn" type="submit" value="Register">
         </form>
     </div>

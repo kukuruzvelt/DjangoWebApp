@@ -5,6 +5,8 @@
     <title>Catalog</title>
 </head>
 <body>
+<span>{{ error_message }}</span>
+<span>{{ message }}</span>
 {% for prod in products %}
     <form method="post" action="/products/catalog">
         {% csrf_token %}

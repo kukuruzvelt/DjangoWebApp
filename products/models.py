@@ -1,4 +1,5 @@
 from django.db import models
+from users.models import Customer
 
 
 class Product(models.Model):
@@ -12,5 +13,16 @@ class Product(models.Model):
 
 
 class Cart(models.Model):
-    user_id = models.BigIntegerField('User ID', default=0)
-    product_id = models.BigIntegerField('Product ID', default=0)
+    user = models.ManyToManyField(Customer)
+    product = models.ManyToManyField(Product)
+    quantity = models.BigIntegerField('Quantity', default=1)
+
+
+class Order(models.Model):
+    date = models.DateField('Delivery date')
+    city = models.CharField('City', max_length=30, default='')
+
+
+class OrderProduct(models.Model):
+    order = models.ManyToManyField(Order)
+    product = models.ManyToManyField(Product)
