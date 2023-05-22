@@ -14,5 +14,10 @@
     </label><br/>
     <input class="button" type="submit" value="Pay">
 </form>
+<br>
+<form method="get" action="/users/profile">
+    {% csrf_token %}
+    <input type="submit" value="Your profile">
+</form>
 </body>
 </html>

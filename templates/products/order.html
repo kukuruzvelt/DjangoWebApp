@@ -18,5 +18,11 @@ Your order: <br>
     {{ form.city }}<br>
     <input class="order-btn" type="submit" value="Order">
 </form>
+
+<br>
+<form method="get" action="/users/profile">
+    {% csrf_token %}
+    <input type="submit" value="Your profile">
+</form>
 </body>
 </html>
