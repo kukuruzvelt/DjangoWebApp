@@ -5,7 +5,12 @@
     <title>Profile</title>
 </head>
 <body>
-Hello {{ user.first_name }}!<br>
+Hello {{ user.first_name }}!
+Your balance = {{ customer.money }}
+<br>
+<span>{{ error_message }}</span>
+<span>{{ message }}</span>
+<br>
 <a href="/products/catalog">Catalog</a><br>
 <a href="/products/cart">Cart</a><br>
 <a href="/users/pay">Replenish the balance</a><br>

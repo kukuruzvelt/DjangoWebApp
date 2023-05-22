@@ -14,17 +14,18 @@
         <input class="text" type="hidden" name="prod_id" value={{ prod.product.id }}>
         <input class="button" type="submit" value="Remove">
     </form>
-    <br>
 {% endfor %}
 
-{% if products %}
+<br>
+{% if cart %}
+    Total = {{ total }}
     <form method="get" action="/products/buy">
         {% csrf_token %}
         <input class="button" type="submit" value="Buy">
     </form>
 {% endif %}
 <br>
-
+<br>
 <form method="get" action="/users/profile">
     {% csrf_token %}
     <input type="submit" value="Your profile">

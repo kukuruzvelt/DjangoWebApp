@@ -9,8 +9,6 @@ from django.db import transaction
 def register_page(request):
     data = {}
     if request.method == 'POST':
-        # creating user in django.contrib.auth, and saving users money amount in models,
-        # so that users in both tables having the same id
         login = request.POST['login']
         name = request.POST['name']
         password = request.POST['password']
@@ -28,17 +26,18 @@ def register_page(request):
 
 @login_required
 def profile_page(request):
-    return render(request, 'users/profile.html')
+    data = {'customer': Customer.objects.get(user=request.user)}
+    return render(request, 'users/profile.html', data)
 
 
 @login_required
 def pay_page(request):
     data = {}
     if request.method == 'POST':
+        # todo validate money field
         money = request.POST['money']
-        user_id = request.user.id
-        user = Customer.objects.get(id=user_id)
-        Customer.objects.filter(id=user_id).update(money=user.money + int(money))
+        user = Customer.objects.get(user=request.user)
+        Customer.objects.filter(id=user.id).update(money=user.money + int(money))
         data['message'] = 'Successfully replenished the balance for ' + money
 
     return render(request, 'users/pay.html', data)

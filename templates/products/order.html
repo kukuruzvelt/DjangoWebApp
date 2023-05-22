@@ -7,10 +7,12 @@
 <body>
 <span>{{ error_message }}</span>
 Your order: <br>
-{% for prod in products %}
-    {{ prod }} - {{ prod.price }}
+{% for prod in cart %}
+    {{ prod }}
     <br>
 {% endfor %}
+<br>
+Total = {{ total }}
 
 <form method="POST" action="/products/buy">
     {% csrf_token %}

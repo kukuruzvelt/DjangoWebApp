@@ -1,9 +1,11 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from .models import *
 from .forms import OrderForm
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
 
+
+# todo add orders page in profiles
 
 @transaction.atomic()
 def catalog(request):
@@ -56,6 +58,10 @@ def cart(request):
     cart_list = Cart.objects.filter(user=user)
     if cart_list.__len__() > 0:
         data['cart'] = cart_list
+        total = 0
+        for c in cart_list:
+            total += c.product.price
+        data['total'] = total
     else:
         data['message'] = 'Your cart is empty'
 
@@ -65,35 +71,38 @@ def cart(request):
 @login_required
 @transaction.atomic()
 def buy(request):
-    # todo error if not enough money to buy and redirect back to cart
     data = {}
 
     user = Customer.objects.get(user=request.user)
-    products = get_products_for_user(user)
+    cart_list = Cart.objects.filter(user=user)
+
+    total = 0
+    for c in cart_list:
+        total += c.product.price
+    data['total'] = total
 
     if request.method == 'POST':
         form = OrderForm(request.POST)
-        if form.is_valid():
-            order = Order.objects.create(user=user, date=form.cleaned_data.get('date'),
-                                         city=form.cleaned_data.get('city'))
-            order.save()
-            for prod in products:
-                OrderProduct.objects.create(order=order, product=prod).save()
-                Cart.objects.filter(user=user, product=prod).delete()
-                # todo redirect to profile with message about successful order creation
+        if user.money >= total:
+            if form.is_valid():
+                Customer.objects.filter(id=user.id).update(money=user.money - total)
+                order = Order.objects.create(user=user, date=form.cleaned_data.get('date'),
+                                             city=form.cleaned_data.get('city'))
+                order.save()
+                for c in cart_list:
+                    OrderProduct.objects.create(order=order, product=c.product).save()
+                    Cart.objects.filter(id=c.id).delete()
+                data['message'] = 'Successfully created your order'
+            else:
+                data['error_message'] = 'Form was wrong, try again'
         else:
-            data['error_message'] = 'Form was wrong, try again'
+            data['error_message'] = 'Not enough money'
+        # todo missing data about balance after render, should use redirect
+        return render(request, 'users/profile.html', data)
 
     form = OrderForm
 
     data['form'] = form
+    data['cart'] = cart_list
 
     return render(request, 'products/order.html', data)
-
-
-def get_products_for_user(user):
-    products = []
-    items = Cart.objects.filter(user=user)
-    for item in items:
-        products.append(item.product)
-    return products

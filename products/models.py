@@ -9,7 +9,7 @@ class Product(models.Model):
     description = models.TextField('Description')
 
     def __str__(self):
-        return f"{self.name} - {self.description} : {self.quantity} left"
+        return f"{self.name} ( {self.description} ) - {self.price} : {self.quantity} left"
 
 
 class Cart(models.Model):
@@ -18,7 +18,7 @@ class Cart(models.Model):
     quantity = models.BigIntegerField('Quantity', default=1)
 
     def __str__(self):
-        return f"{self.product.name} - {self.product.price} x {self.quantity} = {self.product.price * self.quantity}"
+        return f"{self.product.name} : {self.product.price} x {self.quantity} = {self.product.price * self.quantity}"
 
 
 class Order(models.Model):
