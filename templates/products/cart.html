@@ -5,8 +5,8 @@
     <title>Cart</title>
 </head>
 <body>
-<span>{{ error_message }}</span>
-<span>{{ message }}</span>
+<span style="color: red">{{ error_message }}</span>
+<span style="color: green">{{ message }}</span>
 {% for prod in cart %}
     {{ prod }}
     <form method="post" action="/products/cart">

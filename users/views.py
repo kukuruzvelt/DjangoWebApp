@@ -25,8 +25,17 @@ def register_page(request):
 
 
 @login_required
-def profile_page(request):
+def profile_page(request, message):
     data = {'customer': Customer.objects.get(user=request.user)}
+    if message == 'success':
+        data['message'] = 'Successfully created your order'
+    if message == 'wrong_form':
+        data['error_message'] = 'Form was wrong, try again'
+    if message == 'not_enough_money':
+        data['error_message'] = 'Not enough money'
+    if message == 'empty_cart':
+        data['error_message'] = 'Can\'t create an order for an empty cart'
+
     return render(request, 'users/profile.html', data)
 
 

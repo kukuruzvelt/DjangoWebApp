@@ -25,8 +25,16 @@ class Order(models.Model):
     user = models.ForeignKey(Customer, on_delete=models.CASCADE, default=None)
     date = models.DateField('Delivery date')
     city = models.CharField('City', max_length=30, default='')
+    completed = models.BooleanField('Is Completed', default=False)
+
+    def __str__(self):
+        return f"{self.date}, deliver to {self.city}"
 
 
 class OrderProduct(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE, default=None)
     product = models.ForeignKey(Product, on_delete=models.CASCADE, default=None)
+    quantity = models.BigIntegerField('Quantity', default=0)
+
+    def __str__(self):
+        return f"{self.product.name} x {self.quantity}"

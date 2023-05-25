@@ -5,8 +5,6 @@ from django.contrib.auth.decorators import login_required
 from django.db import transaction
 
 
-# todo add orders page in profiles
-
 @transaction.atomic()
 def catalog(request):
     data = {}
@@ -55,13 +53,11 @@ def cart(request):
             Cart.objects.filter(user=user, product=product).update(quantity=cart_instance.quantity - 1)
         else:
             Cart.objects.filter(user=user, product=product).delete()
+
     cart_list = Cart.objects.filter(user=user)
     if cart_list.__len__() > 0:
         data['cart'] = cart_list
-        total = 0
-        for c in cart_list:
-            total += c.product.price
-        data['total'] = total
+        data['total'] = count_total(cart_list)
     else:
         data['message'] = 'Your cart is empty'
 
@@ -71,34 +67,34 @@ def cart(request):
 @login_required
 @transaction.atomic()
 def buy(request):
+    # todo set up min order date as tomorrow
     data = {}
 
     user = Customer.objects.get(user=request.user)
     cart_list = Cart.objects.filter(user=user)
 
-    total = 0
-    for c in cart_list:
-        total += c.product.price
+    total = count_total(cart_list)
     data['total'] = total
 
     if request.method == 'POST':
         form = OrderForm(request.POST)
-        if user.money >= total:
-            if form.is_valid():
-                Customer.objects.filter(id=user.id).update(money=user.money - total)
-                order = Order.objects.create(user=user, date=form.cleaned_data.get('date'),
-                                             city=form.cleaned_data.get('city'))
-                order.save()
-                for c in cart_list:
-                    OrderProduct.objects.create(order=order, product=c.product).save()
-                    Cart.objects.filter(id=c.id).delete()
-                data['message'] = 'Successfully created your order'
-            else:
-                data['error_message'] = 'Form was wrong, try again'
+        if cart_list.__len__() < 1:
+            message = 'empty_cart'
+        elif user.money < total:
+            message = 'not_enough_money'
+        elif form.is_valid():
+            Customer.objects.filter(id=user.id).update(money=user.money - total)
+            order = Order.objects.create(user=user, date=form.cleaned_data.get('date'),
+                                         city=form.cleaned_data.get('city'))
+            order.save()
+            for c in cart_list:
+                OrderProduct.objects.create(order=order, product=c.product, quantity=c.quantity).save()
+                Cart.objects.filter(id=c.id).delete()
+            message = 'success'
         else:
-            data['error_message'] = 'Not enough money'
-        # todo missing data about balance after render, should use redirect
-        return render(request, 'users/profile.html', data)
+            message = 'wrong_form'
+
+        return redirect('/users/profile/' + message)
 
     form = OrderForm
 
@@ -106,3 +102,34 @@ def buy(request):
     data['cart'] = cart_list
 
     return render(request, 'products/order.html', data)
+
+
+@login_required
+@transaction.atomic()
+def orders(request):
+    data = {}
+
+    if request.method == 'POST':
+        # canceling order
+        print(request.POST['order_id'])
+        Order.objects.filter(id=request.POST['order_id']).delete()
+        data['message'] = 'Successfully deleted your order'
+
+    # todo show cancel button only if order still has not been completed
+    order_list = Order.objects.filter(user=Customer.objects.get(user=request.user))
+    result = {}
+    if order_list.__len__() > 0:
+        for o in order_list:
+            result[o] = OrderProduct.objects.filter(order=o)
+        data['orders'] = result
+    else:
+        data['error_message'] = 'You have no orders'
+
+    return render(request, 'products/order_list.html', data)
+
+
+def count_total(cart_list):
+    total = 0
+    for c in cart_list:
+        total += c.product.price * c.quantity
+    return total
