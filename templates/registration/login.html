@@ -10,7 +10,7 @@ Login page
     {% csrf_token %}
     <table>
       <tr>
-        <td>{{ form.username.label_tag }}</td>
+        <td>Email:</td>
         <td>{{ form.username }}</td>
       </tr>
       <tr>
@@ -18,8 +18,12 @@ Login page
         <td>{{ form.password }}</td>
       </tr>
     </table>
-    <input type="submit" value="login">
+    <input type="submit" value="Login">
     <input type="hidden" name="next" value="{{ next }}">
   </form>
+<form method="get" action="/">
+    {% csrf_token %}
+    <input type="submit" value="Back to main page">
+</form>
 </body>
 </html>

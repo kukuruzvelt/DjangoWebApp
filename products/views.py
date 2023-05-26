@@ -48,11 +48,14 @@ def cart(request):
 
         Product.objects.filter(id=product_id).update(quantity=product.quantity + 1)
 
-        cart_instance = Cart.objects.get(user=user, product=product)
-        if cart_instance.quantity > 1:
-            Cart.objects.filter(user=user, product=product).update(quantity=cart_instance.quantity - 1)
-        else:
-            Cart.objects.filter(user=user, product=product).delete()
+        try:
+            cart_instance = Cart.objects.get(user=user, product=product)
+            if cart_instance.quantity > 1:
+                Cart.objects.filter(user=user, product=product).update(quantity=cart_instance.quantity - 1)
+            else:
+                Cart.objects.filter(user=user, product=product).delete()
+        except Cart.DoesNotExist:
+            data['error_message'] = 'This item has been already removed'
 
     cart_list = Cart.objects.filter(user=user)
     if cart_list.__len__() > 0:
@@ -67,7 +70,6 @@ def cart(request):
 @login_required
 @transaction.atomic()
 def buy(request):
-    # todo set up min order date as tomorrow
     data = {}
 
     user = Customer.objects.get(user=request.user)
@@ -111,11 +113,21 @@ def orders(request):
 
     if request.method == 'POST':
         # canceling order
-        print(request.POST['order_id'])
-        Order.objects.filter(id=request.POST['order_id']).delete()
-        data['message'] = 'Successfully deleted your order'
+        try:
+            order = Order.objects.get(id=request.POST['order_id'])
+            order_products = OrderProduct.objects.filter(order=order)
+            total = 0
+            for ord_prod in order_products:
+                total += ord_prod.product.price
+                Product.objects.filter(id=ord_prod.product.id).update(quantity=
+                                                                      ord_prod.product.quantity + ord_prod.quantity)
+            user = Customer.objects.get(user=request.user)
+            Customer.objects.filter(id=user.id).update(money=user.money + total)
+            Order.objects.filter(id=order.id).delete()
+            data['message'] = 'Successfully deleted your order'
+        except Order.DoesNotExist:
+            data['error_message'] = ' This order has already been canceled'
 
-    # todo show cancel button only if order still has not been completed
     order_list = Order.objects.filter(user=Customer.objects.get(user=request.user))
     result = {}
     if order_list.__len__() > 0:
@@ -123,7 +135,7 @@ def orders(request):
             result[o] = OrderProduct.objects.filter(order=o)
         data['orders'] = result
     else:
-        data['error_message'] = 'You have no orders'
+        data['message'] = 'You have no orders'
 
     return render(request, 'products/order_list.html', data)
 

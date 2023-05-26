@@ -5,23 +5,22 @@
     <title>Register</title>
 </head>
 <body>
+<span style="color: red">{{ error_message }}</span>
+<span style="color: green">{{ message }}</span>
 <div class="container">
     <div class="registration-fields">
         <form method="POST">
             {% csrf_token %}
-            <label>
-                <input type="text" placeholder="Enter first name" name="name">
-            </label>
-            <label>
-                <input type="text" placeholder="Enter login" name="login">
-            </label>
-            <label>
-                <input type="password" placeholder="Enter password" name="password">
-            </label>
+            {{ form.name }}<br>
+            {{ form.email }}<br>
+            {{ form.password }}<br>
             <input class="register-btn" type="submit" value="Register">
         </form>
     </div>
 </div>
-
+<form method="get" action="/">
+    {% csrf_token %}
+    <input type="submit" value="Back to main page">
+</form>
 </body>
 </html>

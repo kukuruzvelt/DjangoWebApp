@@ -1,25 +1,34 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.models import User
 from .models import Customer
+from .forms import RegisterForm, MoneyForm
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
+from django.db.utils import IntegrityError
 
 
 @transaction.atomic()
 def register_page(request):
     data = {}
     if request.method == 'POST':
-        login = request.POST['login']
-        name = request.POST['name']
-        password = request.POST['password']
-        # todo ensure that fields are valid, add error to data{} if not
-        user = User.objects.create_user(login, '', password)
-        user.first_name = name
-        user.save()
+        form = RegisterForm(request.POST)
+        if form.is_valid():
+            email = form.cleaned_data.get('email')
+            name = form.cleaned_data.get('name')
+            password = form.cleaned_data.get('password')
+            try:
+                user = User.objects.create_user(email, '', password)
+                user.first_name = name
+                user.save()
+                Customer.objects.create(user=user).save()
+                return redirect('/users/login')
+            except IntegrityError:
+                data['error_message'] = 'Email ' + email + ' has been already used'
+        else:
+            data['error_message'] = 'Invalid email'
 
-        Customer.objects.create(user=user).save()
-
-        return redirect('/users/login')
+    form = RegisterForm
+    data['form'] = form
 
     return render(request, 'registration/register.html', data)
 
@@ -43,10 +52,17 @@ def profile_page(request, message):
 def pay_page(request):
     data = {}
     if request.method == 'POST':
-        # todo validate money field
-        money = request.POST['money']
-        user = Customer.objects.get(user=request.user)
-        Customer.objects.filter(id=user.id).update(money=user.money + int(money))
-        data['message'] = 'Successfully replenished the balance for ' + money
+        form = MoneyForm(request.POST)
+
+        if form.is_valid():
+            money = form.cleaned_data.get('money')
+            user = Customer.objects.get(user=request.user)
+            Customer.objects.filter(id=user.id).update(money=user.money + int(money))
+            data['message'] = 'Successfully replenished the balance for ' + str(money)
+        else:
+            data['error_message'] = 'Form was wrong'
+
+    form = MoneyForm
+    data['form'] = form
 
     return render(request, 'users/pay.html', data)

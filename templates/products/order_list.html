@@ -13,11 +13,13 @@
         {{ order }}
         Products: <br>
         {% for item in products %}
-            {{item}}
+            {{ item }}
             <br>
         {% endfor %}
-        <input type="submit" value="Cancel">
-        <input type="hidden" name="order_id" value="{{ order.order.id }}">
+        {% if not order.completed %}
+            <input type="submit" value="Cancel">
+            <input type="hidden" name="order_id" value="{{ order.id }}">
+        {% endif %}
     </form>
     <br>
 {% endfor %}

@@ -9,9 +9,8 @@
 <span style="color: green">{{ message }}</span>
 <form method="post" action="/users/pay">
     {% csrf_token %}
-    <label>
-        <input type="number" placeholder="Sum" name="money" min="0">
-    </label><br/>
+    {{ form.money }}
+    <br/>
     <input class="button" type="submit" value="Pay">
 </form>
 <br>
