@@ -29,7 +29,7 @@ DEBUG = False
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
 CSRF_COOKIE_DOMAIN = None
-CSRF_TRUSTED_ORIGINS = [os.environ['WEBSITE_HOSTNAME']]
+CSRF_TRUSTED_ORIGINS = ['https://web-production-b89d.up.railway.app/']
 
 ALLOWED_HOSTS = ['*']
 
