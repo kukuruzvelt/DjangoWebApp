@@ -33,8 +33,9 @@ CSRF_TRUSTED_ORIGINS = ['https://web-production-b89d.up.railway.app']
 
 ALLOWED_HOSTS = ['*']
 
-STATICFILES_DIRS = [os.path.join(BASE_DIR, 'staticfiles')]
-STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+PROJECT_ROOT = os.path.normpath(os.path.dirname(__file__))
+STATIC_ROOT = os.path.join(PROJECT_ROOT, 'static')
+STATIC_URL = '/static/'
 
 # Application definition
 
