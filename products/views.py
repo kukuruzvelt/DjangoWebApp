@@ -118,7 +118,7 @@ def orders(request):
             order_products = OrderProduct.objects.filter(order=order)
             total = 0
             for ord_prod in order_products:
-                total += ord_prod.product.price
+                total += ord_prod.product.price * ord_prod.quantity
                 Product.objects.filter(id=ord_prod.product.id).update(quantity=
                                                                       ord_prod.product.quantity + ord_prod.quantity)
             user = Customer.objects.get(user=request.user)

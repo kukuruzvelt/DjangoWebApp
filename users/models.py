@@ -7,5 +7,5 @@ class Customer(models.Model):
     money = models.BigIntegerField('Money', default=0)
 
     def __str__(self):
-        return f"{self.user.email} {self.user.first_name}"
+        return f"{self.user.username}"
 
