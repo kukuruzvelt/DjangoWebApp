@@ -49,6 +49,7 @@ def profile_page(request, message):
 
 
 @login_required
+@transaction.atomic()
 def pay_page(request):
     data = {}
     if request.method == 'POST':
